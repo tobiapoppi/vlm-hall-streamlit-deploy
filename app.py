@@ -548,8 +548,7 @@ def display_media_content(example):
     swap_type = example.get("swap_type", "")
     modality = example.get("modality", "")
 
-    st.subheader(f"📋 Task: {example.get('task_type', 'Unknown')}")
-    st.write(f"**Modality:** {modality.title()} | **Swap Type:** {swap_type.replace('_', ' ').title()}")
+    st.write(f"**Task:** {example.get('task_type', 'Unknown')} | **Modality:** {modality.title()} | **Swap Type:** {swap_type.replace('_', ' ').title()}")
 
     if swap_type == "input_swap":
         # Show comparison between chosen and rejected inputs
@@ -590,14 +589,14 @@ def display_media_content(example):
         col1, col2 = st.columns(2)
         with col1:
             if modality == "video":
-                st.write("**Video:**")
+                st.write("**Video (Reference):**")
                 if os.path.exists(example["video"]):
                     st.video(example["video"])
                 else:
                     st.error(f"Video not found: {example['video']}")
 
             elif modality == "image":
-                st.write("**Image:**")
+                st.write("**Image (Reference):**")
                 if os.path.exists(example["image"]):
                     st.image(example["image"], use_container_width=True)
                 else:
@@ -699,8 +698,6 @@ def format_text_with_actions(text):
 
 def display_text_content(example):
     """Display prompt and answer(s)"""
-    st.subheader("📝 Content")
-
     # Display prompt
     st.markdown("**Prompt:**")
     formatted_prompt = format_text_with_actions(example["prompt"])
@@ -726,6 +723,35 @@ def display_text_content(example):
             st.markdown("**Rejected Answer:**")
             formatted_rejected = format_text_with_actions(example["rejected_answer"])
             st.markdown(formatted_rejected)
+
+
+def show_evaluation_guide(example):
+    """Show concise instructions for the current sample format."""
+    swap_type = example.get("swap_type", "")
+    if swap_type == "input_swap":
+        format_note = (
+            "This sample has **Chosen Video + Rejected Video** and a **single answer**. "
+            "Judge correctness using the **single answer with the Chosen Video**."
+        )
+    else:
+        format_note = (
+            "This sample has a **single video** and **Chosen Answer + Rejected Answer**. "
+            "Judge correctness using the **Chosen Answer with the video**."
+        )
+
+    st.info(
+        "\n".join(
+            [
+                "### What to do",
+                "1. **Part 1 - Visual check:** look at the visual input (video/image).",
+                "2. **Part 2 - Answer check:** read the answer text.",
+                "3. **Correctness:** evaluate if the target answer is correct for the chosen visual input.",
+                "4. **Visual quality:** evaluate only the visual quality of the chosen visual input.",
+                "",
+                format_note,
+            ]
+        )
+    )
 
 
 def main():
@@ -833,29 +859,30 @@ def main():
     
     # Display current example info with assignment progress
     st.write(f"**Sample {current_index + 1} of 30** ({task_display}) | ID: `{current_example['id']}`")
+    show_evaluation_guide(current_example)
 
-    # Display media content
+    st.subheader("Part 1 of 2: Visual Input")
     display_media_content(current_example)
 
     st.markdown("---")
 
-    # Display text content
+    st.subheader("Part 2 of 2: Answer Text")
     display_text_content(current_example)
 
     st.markdown("---")
 
     # Evaluation scales
     st.subheader("🏷️ Evaluation")
-    st.info("Rate each sample on two separate axes: correctness and visual quality.")
+    st.info("Submit two ratings: correctness of the target answer with the chosen visual input, and visual quality of the chosen visual input.")
 
     correctness_key = f"correctness_{current_example['id']}"
     quality_key = f"quality_{current_example['id']}"
     swap_type = current_example.get("swap_type", "")
 
     if swap_type == "output_swap":
-        correctness_prompt = "-- Select correctness of chosen answer based on question and video --"
+        correctness_prompt = "-- Is the CHOSEN answer correct with respect to the video/image? --"
     else:
-        correctness_prompt = "-- Select correctness of answer based on question and chosen video--"
+        correctness_prompt = "-- Is the answer correct with respect to the CHOSEN video/image? --"
 
     correctness_options = {
         correctness_prompt: None,
@@ -878,7 +905,7 @@ def main():
         index=0,
         horizontal=True,
         key=correctness_key,
-        help="Evaluate whether the text answer matches the visual content."
+        help="Use the chosen visual input as reference. For output_swap, evaluate the chosen answer."
     )
     selected_quality_display = st.radio(
         "Visual Quality",
