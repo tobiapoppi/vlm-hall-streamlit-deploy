@@ -299,7 +299,8 @@ def generate_user_assignment(grouped_samples, already_assigned_videos, session_i
     - 2 ACTSEQ_C_in, 2 ACTSEQ_C_out
     - 2 ACTSEQ_B_in, 2 ACTSEQ_B_out
     - 2 ACTSEQ_A_in, 2 ACTSEQ_A_out (12 total ACTSEQ, unique video IDs within ACTSEQ)
-    - Order: ACTREC_C -> ACTREC_D -> ACTREC_A -> ACTSEQ_C -> ACTSEQ_B -> ACTSEQ_A
+    - Phase 1: all "_out" samples first (single-video examples)
+    - Phase 2: all "_in" samples second (single-answer examples)
     """
     assignment = []
     assigned_video_ids = {
@@ -307,19 +308,21 @@ def generate_user_assignment(grouped_samples, already_assigned_videos, session_i
         "ACTSEQ": set()
     }
     
-    # Define the order and count for each task type (now split by preference type)
+    # Define task order split in two phases:
+    # Phase 1: single-video examples ("out")
+    # Phase 2: single-answer examples ("in")
     task_order = [
         ("ACTREC_C_out", 3),
-        ("ACTREC_C_in", 3),
         ("ACTREC_D_out", 3),
-        ("ACTREC_D_in", 3),
         ("ACTREC_A_out", 3),
-        ("ACTREC_A_in", 3),
         ("ACTSEQ_C_out", 2),
-        ("ACTSEQ_C_in", 2),
         ("ACTSEQ_B_out", 2),
-        ("ACTSEQ_B_in", 2),
         ("ACTSEQ_A_out", 2),
+        ("ACTREC_C_in", 3),
+        ("ACTREC_D_in", 3),
+        ("ACTREC_A_in", 3),
+        ("ACTSEQ_C_in", 2),
+        ("ACTSEQ_B_in", 2),
         ("ACTSEQ_A_in", 2)
     ]
     
@@ -859,6 +862,10 @@ def main():
     
     # Display current example info with assignment progress
     st.write(f"**Sample {current_index + 1} of 30** ({task_display}) | ID: `{current_example['id']}`")
+    if preference_type == "out":
+        st.info(f"Phase 1/2: Single-video examples ({current_index + 1}/15)")
+    else:
+        st.info(f"Phase 2/2: Single-answer examples ({current_index - 14}/15)")
     show_evaluation_guide(current_example)
 
     st.subheader("Part 1 of 2: Visual Input")
