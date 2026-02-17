@@ -863,17 +863,17 @@ def main():
     # Display current example info with assignment progress
     st.write(f"**Sample {current_index + 1} of 30** ({task_display}) | ID: `{current_example['id']}`")
     if preference_type == "out":
-        st.info(f"Phase 1/2: Single-video examples ({current_index + 1}/15)")
+        st.info(f"Experiment 1/2 (Output preference): single-video samples ({current_index + 1}/15)")
     else:
-        st.info(f"Phase 2/2: Single-answer examples ({current_index - 14}/15)")
+        st.info(f"Experiment 2/2 (Input preference): single-answer samples ({current_index - 14}/15)")
     show_evaluation_guide(current_example)
 
-    st.subheader("Part 1 of 2: Visual Input")
+    st.subheader("Visual Input")
     display_media_content(current_example)
 
     st.markdown("---")
 
-    st.subheader("Part 2 of 2: Answer Text")
+    st.subheader("Answer Text")
     display_text_content(current_example)
 
     st.markdown("---")
