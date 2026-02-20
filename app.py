@@ -23,7 +23,7 @@ DATA_DIR = APP_DIR / "data"
 MEDIA_KEYS = {"video", "image", "chosen_video", "rejected_video", "chosen_image", "rejected_image"}
 
 ORIGINAL_FILE = str(DATA_DIR / "val_mixed_dpo.jsonl")
-LABELED_FILE = str(DATA_DIR / "val_mixed_dpo_human_labelled_v2___template.jsonl")
+LABELED_FILE = str(DATA_DIR / "streamlit_cloud_eval_repo/data/val_mixed_dpo_human_labelled_v2_____template.jsonl")
 PROGRESS_FILE = str(DATA_DIR / "evaluation_progress_v2.json")
 OLD_LABELED_FILE = str(DATA_DIR / "val_mixed_dpo_human_labelled_v2.jsonl")
 
