@@ -812,6 +812,36 @@ def main():
     st.sidebar.metric("👥 Active Users", active_users)
     st.sidebar.write(f"**Session ID:** `{session_id[:8]}...`")
 
+        # --- Admin: export results ---
+    st.sidebar.markdown("---")
+    st.sidebar.header("🔐 Admin export")
+
+    admin_key = st.sidebar.text_input("Admin key", type="password")
+    if admin_key and admin_key == st.secrets.get("ADMIN_KEY", ""):
+        # 1) Download labeled JSONL
+        if os.path.exists(LABELED_FILE):
+            with open(LABELED_FILE, "rb") as f:
+                st.sidebar.download_button(
+                    "⬇️ Scarica labeled JSONL",
+                    data=f,
+                    file_name=Path(LABELED_FILE).name,
+                    mime="application/jsonl",
+                )
+        else:
+            st.sidebar.warning("LABELED_FILE non trovato sul server.")
+
+        # 2) Download progress JSON
+        if os.path.exists(PROGRESS_FILE):
+            with open(PROGRESS_FILE, "rb") as f:
+                st.sidebar.download_button(
+                    "⬇️ Scarica progress JSON",
+                    data=f,
+                    file_name=Path(PROGRESS_FILE).name,
+                    mime="application/json",
+                )
+        else:
+            st.sidebar.warning("PROGRESS_FILE non trovato sul server.")
+
     # Get next example
     current_example, current_index = get_next_example(original_data, progress_data, session_id)
 
